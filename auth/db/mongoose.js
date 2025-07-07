@@ -1,13 +1,16 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+require("dotenv").config();
 
-mongoose.connect('mongodb://localhost:27017/my-microservices');
+const MONGOOSE_URL = process.env.MONGOOSE_URL;
+
+mongoose.connect(MONGOOSE_URL);
 
 const db = mongoose.connection;
 
-db.on('error', (error) => {
-  console.error('❌ Échec de connexion MongoDB :', error);
+db.on("error", (error) => {
+  console.error("❌ Échec de connexion MongoDB :", error);
 });
 
-db.once('open', () => {
-  console.log('✅ Connexion à MongoDB établie');
+db.once("open", () => {
+  console.log("✅ Connexion à MongoDB établie");
 });
