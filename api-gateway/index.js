@@ -1,6 +1,7 @@
-const express = require("express");
-const proxy = require("express-http-proxy");
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import proxy from "express-http-proxy";
+dotenv.config();
 
 const app = express();
 

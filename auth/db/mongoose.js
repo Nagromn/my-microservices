@@ -1,5 +1,7 @@
+import dotenv from "dotenv";
 import mongoose from "mongoose";
-require("dotenv").config();
+
+dotenv.config();
 
 const MONGOOSE_URL = process.env.MONGOOSE_URL;
 
