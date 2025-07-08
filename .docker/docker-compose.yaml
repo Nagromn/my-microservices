@@ -1,0 +1,60 @@
+services:
+  api-gateway:
+    build: ../api-gateway
+    container_name: api-gateway
+    develop:
+      watch:
+        - action: sync+restart
+          path: ../api-gateway
+          target: /var/www/html
+          ignore:
+            - node_modules/
+            - .git/
+    volumes:
+      - ../api-gateway:/var/www/html
+    ports:
+      - 3000:3000
+
+  auth:
+    build: ../auth
+    container_name: auth
+    develop:
+      watch:
+        - action: sync+restart
+          path: ../auth
+          target: /var/www/html
+          ignore:
+            - node_modules/
+            - .git/
+    volumes:
+      - ../auth:/var/www/html
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    ports:
+      - 8081:8081
+
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${MONGO_INITDB_DATABASE}?authSource=admin --quiet --eval \"db.adminCommand('ping').ok\" | grep 1"
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  mongo-data: {}
