@@ -15,7 +15,7 @@ services:
       - ../auth:/var/www/html
       - auth-node-modules:/var/www/html/node_modules
     depends_on:
-      mongodb:
+      auth-mongodb:
         condition: service_healthy
 
   products:
@@ -25,12 +25,12 @@ services:
       - ../products:/var/www/html
       - products-node-modules:/var/www/html/node_modules
     depends_on:
-      mongodb:
+      products-mongodb:
         condition: service_healthy
 
-  mongodb:
+  auth-mongodb:
     image: mongo:7.0
-    container_name: mongodb
+    container_name: auth-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
@@ -39,12 +39,33 @@ services:
       - 27017:27017
     volumes:
       - auth-mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mongosh mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@127.0.0.1:27017/${MONGO_INITDB_DATABASE}?authSource=admin --quiet --eval "db.adminCommand(''ping'').ok" | grep 1',
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  products-mongodb:
+    image: mongo:7.0
+    container_name: products-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    ports:
+      - 27018:27017
+    volumes:
       - products-mongo-data:/data/db
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          'mongosh mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@localhost:27017/${MONGO_INITDB_DATABASE}?authSource=admin --quiet --eval "db.adminCommand(''ping'').ok" | grep 1',
+          'mongosh mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@127.0.0.1:27017/${MONGO_INITDB_DATABASE}?authSource=admin --quiet --eval "db.adminCommand(''ping'').ok" | grep 1',
         ]
       start_period: 10s
       interval: 10s
