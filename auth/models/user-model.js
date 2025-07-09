@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import uniqueValidator from 'mongoose-unique-validator';
+import uniqueValidator from "mongoose-unique-validator";
 
 const UserSchema = new mongoose.Schema({
   username: {
@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
 });
 

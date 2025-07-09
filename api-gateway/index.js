@@ -1,15 +1,14 @@
 import dotenv from "dotenv";
 import express from "express";
 import proxy from "express-http-proxy";
+import { adminMdlr } from "./middleware/admin-middleware.js";
 dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT;
-const PROXY = process.env.PROXY;
+app.use("/api/auth", proxy(process.env.AUTH_PROXY));
+app.use("/api/products", adminMdlr, proxy(process.env.PRODUCTS_PROXY));
 
-app.use("/api/auth", proxy(PROXY));
-
-app.listen(PORT, () => {
+app.listen(process.env.PORT, () => {
   console.log("API Gateway en cours d'exécution sur le port 3000");
 });

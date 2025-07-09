@@ -18,6 +18,16 @@ services:
       mongodb:
         condition: service_healthy
 
+  products:
+    build: ../products
+    container_name: products
+    volumes:
+      - ../products:/var/www/html
+      - products-node-modules:/var/www/html/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
   mongodb:
     image: mongo:7.0
     container_name: mongodb
@@ -28,7 +38,8 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - mongo-data:/data/db
+      - auth-mongo-data:/data/db
+      - products-mongo-data:/data/db
     healthcheck:
       test:
         [
@@ -41,6 +52,8 @@ services:
       retries: 3
 
 volumes:
-  mongo-data: {}
+  auth-mongo-data: {}
+  products-mongo-data: {}
   api-gateway-node-modules: {}
   auth-node-modules: {}
+  products-node-modules: {}

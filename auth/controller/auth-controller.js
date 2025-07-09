@@ -22,7 +22,7 @@ export async function userLogin(req, res) {
     }
 
     const token = jwt.sign(
-      { idUser: user._id, uName: user.username },
+      { idUser: user._id, uName: user.username, uRole: user.role },
       private_key,
       { expiresIn: "2h" }
     );
@@ -39,13 +39,14 @@ export async function userLogin(req, res) {
 
 export async function userRegister(req, res) {
   try {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await UserModel.create({
       username,
       password: hashedPassword,
+      role,
     });
 
     res
@@ -55,5 +56,19 @@ export async function userRegister(req, res) {
     res
       .status(500)
       .json({ message: "Erreur lors de l'inscription", data: error });
+  }
+}
+
+export async function getUserInfoFromToken(req, res) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Utilisateur non authentifié" });
+    }
+
+    return res.status(200).json({ user: req.user });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Erreur serveur", error: error.message });
   }
 }
